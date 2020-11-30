@@ -753,13 +753,6 @@ void ESPGizmo::setUpdateURL(const char *url, void (*callback)()) {
 void ESPGizmo::setupWebRoot() {
     server->on("/", std::bind(&ESPGizmo::handleRoot, this));
     server->serveStatic("/", SPIFFS, "/", "max-age=86400");
-//
-//    File dir = SPIFFS.open("/");
-//    File file = dir.openNextFile();
-//    while (file) {
-//        server->serveStatic(file.name(), SPIFFS, file.name(), "max-age=86400");
-//        file = dir.openNextFile();
-//    }
 }
 
 void ESPGizmo::setupOTA() {
@@ -871,6 +864,8 @@ int ESPGizmo::downloadAndSave(const char *url, const char *file) {
     return 1;
 }
 
+
+// FIXME!!!
 int ESPGizmo::updateFiles(const char *url) {
     updatingFiles = true;
     fileUploadFailed = !downloadAndSave(url, "/catalog");
