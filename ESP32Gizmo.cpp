@@ -8,7 +8,7 @@
 #include <ArduinoOTA.h>
 #include <DNSServer.h>
 
-#define LED 2
+#define LED 0 // FIXME: it's 2
 
 // WiFi connection attributes
 #define WIFI_CHANNEL       11
