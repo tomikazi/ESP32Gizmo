@@ -8,11 +8,13 @@
 #include <ArduinoOTA.h>
 #include <DNSServer.h>
 
-#define LED 0 // FIXME: it's 2
+#define LED 2 // FIXME: it's 2
 
 // WiFi connection attributes
 #define WIFI_CHANNEL       11
 #define MAX_CONNECTIONS     8
+
+#define CUSTOM_PASSKEY      "/psk"
 
 #define GIZMO_CONSOLE_TOPIC   "gizmo/console"
 #define GIZMO_CONTROL_TOPIC  "gizmo/control"
@@ -90,7 +92,7 @@ NTPClient *ESPGizmo::timeClient() {
 }
 
 void ESPGizmo::led(boolean on) {
-    digitalWrite(LED, on ? LOW : HIGH);
+    digitalWrite(LED, on ? HIGH : LOW);
 }
 
 void ESPGizmo::initToSaneValues() {
@@ -254,13 +256,26 @@ void ESPGizmo::beginSetup(const char *_name, const char *_version, const char *_
 
     strncpy(name, _name, MAX_NAME_SIZE - 1);
     strncpy(version, _version, MAX_VERSION_SIZE - 1);
-    strncpy(passkeyLocal, _passkey, MAX_PASSKEY_SIZE - 1);
     Serial.printf("\n\n%s version %s\n\n", name, version);
+
+    readCustomPasskey(_passkey);
 
     setupWiFi();
     setupMQTT();
     setupOTA();
     setupHTTPServer();
+}
+
+void ESPGizmo::readCustomPasskey(const char *defaultPasskey) {
+    File f = SPIFFS.open(CUSTOM_PASSKEY, "r");
+    if (f) {
+        int l = f.readBytesUntil('\n', passkeyLocal, MAX_PASSKEY_SIZE - 1);
+        passkeyLocal[l] = '\0';
+        Serial.printf("Custom passkey: [%s]\n", passkeyLocal);
+        f.close();
+    } else {
+        strncpy(passkeyLocal, defaultPasskey, MAX_PASSKEY_SIZE - 1);
+    }
 }
 
 void ESPGizmo::setupNTPClient() {
